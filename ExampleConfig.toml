@@ -1,0 +1,6 @@
+##Change this file's name to "Config.toml"
+[general]
+music_directory = <YOUR MPD MUSIC DIRECTORY>
+
+[database]
+database_path = <WHERE YOU WANT THE DATABASE TO BE> 
