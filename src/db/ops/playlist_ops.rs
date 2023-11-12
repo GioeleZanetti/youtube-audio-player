@@ -16,11 +16,13 @@ pub fn insert_playlist(connnection: &mut SqliteConnection, new_playlist: NewPlay
         .is_ok()
 }
 
-pub fn delete_playlist(connnection: &mut SqliteConnection, playlist_name: &str) -> bool {
+pub fn delete_playlist(connection: &mut SqliteConnection, playlist_name: &str) -> bool {
     use crate::db::schema::playlist::dsl::name;
+
+    let _activated_foreign_key = diesel::sql_query("PRAGMA foreign_keys = ON;").execute(connection);
     diesel::delete(playlist)
         .filter(name.eq(playlist_name))
-        .execute(connnection)
+        .execute(connection)
         .is_ok()
 }
 

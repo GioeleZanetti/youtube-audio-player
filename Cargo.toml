@@ -11,6 +11,6 @@ diesel = { version = "2.1.3", features = ["sqlite", "r2d2"] }
 diesel_migrations = "2.1.0"
 clap = { version = "4.4.7", features = ["derive"] }
 mpd = "0.1.0"
-toml = "0.8.6"
 serde = "^1.0"
 anyhow = "1.0.75"
+confy = "0.5.1"

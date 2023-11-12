@@ -22,8 +22,15 @@ pub fn get_song_by_name(connection: &mut SqliteConnection, song_name: &str) -> O
         .ok()
 }
 
+pub fn get_song_by_id(connection: &mut SqliteConnection, song_id: &str) -> Option<Song> {
+    use crate::db::schema::song::dsl::id;
+    song.filter(id.eq(song_id)).first::<Song>(connection).ok()
+}
+
 pub fn delete_song(connection: &mut SqliteConnection, song_id: &str) -> bool {
     use crate::db::schema::song::dsl::id;
+
+    let _activated_foreign_key = diesel::sql_query("PRAGMA foreign_keys = ON;").execute(connection);
     diesel::delete(song)
         .filter(id.eq(song_id))
         .execute(connection)

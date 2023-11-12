@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use mpd::{Client, Song, State};
 
 pub struct MpdClient {}
@@ -40,9 +41,9 @@ impl MpdClient {
             conn.pause(state)?;
         } else {
             conn.pause(new_state)?;
+            println!("Pause: {}", conn.status()?.state == State::Pause);
         }
 
-        println!("Pause: {}", conn.status()?.state == State::Pause);
         Ok(())
     }
 
@@ -67,6 +68,29 @@ impl MpdClient {
     pub fn next(&self) -> anyhow::Result<()> {
         let mut conn = Client::connect("127.0.0.1:6600")?;
         conn.next()?;
+        Ok(())
+    }
+
+    pub fn previous(&self) -> anyhow::Result<()> {
+        let mut conn = Client::connect("127.0.0.1:6600")?;
+        conn.prev()?;
+        Ok(())
+    }
+
+    pub fn current(&self) -> anyhow::Result<String> {
+        let mut conn = Client::connect("127.0.0.1:6600")?;
+        if let Some(song) = conn.currentsong()? {
+            Ok(song.file)
+        } else {
+            Err(anyhow!("No song currently playing"))
+        }
+    }
+
+    pub fn repeat(&self) -> anyhow::Result<()> {
+        let mut conn = Client::connect("127.0.0.1:6600")?;
+        let repeat = !conn.status()?.repeat;
+        conn.repeat(repeat)?;
+        println!("Repeat: {}", repeat);
         Ok(())
     }
 }

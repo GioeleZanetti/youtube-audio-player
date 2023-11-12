@@ -35,6 +35,10 @@ pub struct DownloadOptions {
     ///specify name of song to download
     #[arg(long, short = 'n', requires = "song_id")]
     pub song_name: String,
+
+    ///specify artist of song to download
+    #[arg(long, short = 'a')]
+    pub song_artist: Option<String>,
 }
 
 #[derive(Debug, Subcommand)]
@@ -128,12 +132,18 @@ pub struct SongDeleteOptions {
 
 #[derive(Debug, Subcommand)]
 pub enum MpdOptions {
-    ///Toggles pause funtion
+    ///Toggles pause function
     Pause {},
-    ///Toggles shuffle funtion
+    ///Toggles shuffle function
     Shuffle {},
     ///Clears current queue
     Clear {},
     ///Skips to next song in queue
     Next {},
+    ///Gets current song's info
+    Current {},
+    ///Toggles repeat function
+    Repeat {},
+    ///Goes to previous song in queue
+    Previous {},
 }

@@ -31,6 +31,7 @@ pub struct NewPlaylistSong<'a> {
 pub struct Song {
     pub id: String,
     pub name: String,
+    pub artist: Option<String>,
 }
 
 #[derive(Insertable)]
@@ -38,4 +39,5 @@ pub struct Song {
 pub struct NewSong<'a> {
     pub id: &'a str,
     pub name: &'a str,
+    pub artist: Option<String>,
 }

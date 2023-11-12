@@ -1,7 +1,8 @@
 -- Your SQL goes here
 CREATE TABLE song(
   id VARCHAR(50) PRIMARY KEY,
-  name VARCHAR(200) NOT NULL
+  name VARCHAR(200) NOT NULL,
+  artist VARCHAR(50)
 );
 
 CREATE TABLE playlist(

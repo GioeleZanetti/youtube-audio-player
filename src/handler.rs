@@ -21,10 +21,16 @@ impl Handler {
         Self { database, api, mpd }
     }
 
-    pub fn add_song_to_registry(&self, song_id: &str, song_name: &str) -> anyhow::Result<()> {
+    pub fn add_song_to_registry(
+        &self,
+        song_id: &str,
+        song_name: &str,
+        song_artist: Option<String>,
+    ) -> anyhow::Result<()> {
         let inserted = self.database.insert_song(NewSong {
             id: song_id,
             name: song_name,
+            artist: song_artist,
         });
 
         if !inserted {
@@ -131,6 +137,9 @@ impl Handler {
     pub fn play_playlist(&self, playlist_name: &str) -> anyhow::Result<()> {
         self.mpd.pause(Some(true))?;
         self.mpd.clear_queue()?;
+        if self.database.get_playlist_by_name(playlist_name).is_none() {
+            return Err(anyhow!(format!("Playlist {} doesn't exist", playlist_name)));
+        }
         let songs = match self.database.get_songs_of_playlist(playlist_name) {
             Some(songs) => songs,
             None => {
@@ -160,7 +169,13 @@ impl Handler {
         match self.database.get_songs() {
             Some(songs) => {
                 for song in songs {
-                    println!("{}", song.name)
+                    println!("{} - {}", song.name, {
+                        if let Some(artist) = song.artist {
+                            artist
+                        } else {
+                            "Unknown".to_string()
+                        }
+                    })
                 }
             }
             None => {}
@@ -203,6 +218,14 @@ impl Handler {
         self.mpd.pause(Some(true))?;
         self.mpd.pause(Some(false))?;
         println!("Skipping to next song in queue");
+        Ok(())
+    }
+
+    pub fn previous(&self) -> anyhow::Result<()> {
+        self.mpd.previous()?;
+        self.mpd.pause(Some(true))?;
+        self.mpd.pause(Some(false))?;
+        println!("Going back to previous song in queue");
         Ok(())
     }
 
@@ -254,6 +277,36 @@ impl Handler {
         if !removed {
             return Err(anyhow!("Couldn't remove song from playlist"));
         }
+        Ok(())
+    }
+
+    pub fn current(&self) -> anyhow::Result<()> {
+        let current_song = self.mpd.current()?;
+        let current_song_name = match current_song.split(".").next() {
+            Some(name) => name,
+            None => {
+                return Err(anyhow!("Error in file name"));
+            }
+        };
+        let song_info = match self.database.get_song_by_id(&current_song_name) {
+            Some(song) => song,
+            None => {
+                return Err(anyhow!("No song currently playing"));
+            }
+        };
+
+        println!("Current song: {}\nArtist: {}", song_info.name, {
+            if let Some(song_artist) = song_info.artist {
+                song_artist
+            } else {
+                "Unknown".to_string()
+            }
+        });
+
+        Ok(())
+    }
+    pub fn repeat(&self) -> anyhow::Result<()> {
+        self.mpd.repeat()?;
         Ok(())
     }
 }

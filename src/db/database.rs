@@ -9,18 +9,18 @@ use super::{
     ops::{
         playlist_ops::{delete_playlist, get_playlist_by_name, get_playlists, insert_playlist},
         playlist_song_ops::{add_songs_to_playlist, delete_playlist_song, get_songs_of_playlist},
-        song_ops::{delete_song, get_song_by_name, get_songs, insert_song},
+        song_ops::{delete_song, get_song_by_id, get_song_by_name, get_songs, insert_song},
     },
 };
 
-type MysqlPool = Pool<ConnectionManager<SqliteConnection>>;
+type MysqlitePool = Pool<ConnectionManager<SqliteConnection>>;
 
 /**
  * Struct di gestione del database
  */
 pub struct Database {
     //Il pool di connessioni al database
-    pool: MysqlPool,
+    pool: MysqlitePool,
 }
 
 impl Database {
@@ -29,13 +29,12 @@ impl Database {
      * url: l'url per collegarsi al database
      * max_size: quante connessioni possono avvenire simultaneamente
      */
-    pub fn new(url: String, max_size: u32) -> Self {
-        let pool = MysqlPool::builder()
+    pub fn new(url: String, max_size: u32) -> anyhow::Result<Self> {
+        let pool = MysqlitePool::builder()
             .max_size(max_size)
-            .build(ConnectionManager::new(url))
-            .unwrap();
+            .build(ConnectionManager::new(url))?;
 
-        Self { pool }
+        Ok(Self { pool })
     }
 
     /**
@@ -61,6 +60,10 @@ impl Database {
 
     pub fn get_song_by_name(&self, song_name: &str) -> Option<Song> {
         get_song_by_name(&mut self.get_connection(), song_name)
+    }
+
+    pub fn get_song_by_id(&self, song_id: &str) -> Option<Song> {
+        get_song_by_id(&mut self.get_connection(), song_id)
     }
 
     pub fn insert_song(&self, new_song: NewSong) -> bool {
