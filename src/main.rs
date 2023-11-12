@@ -18,7 +18,7 @@ use crate::handler::Handler;
 use crate::youtube_api::youtube_api::YoutubeAPI;
 
 fn main() {
-    let config: Config = match confy::load("yap", None) {
+    let config: Config = match confy::load("yap", "yap.config") {
         Ok(config) => config,
         Err(error) => {
             println!("{}", error);

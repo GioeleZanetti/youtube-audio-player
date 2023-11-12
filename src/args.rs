@@ -30,15 +30,15 @@ pub enum Command {
 pub struct DownloadOptions {
     ///specify url of song to download
     #[arg(long, short = 'i', requires = "song_name")]
-    pub song_id: String,
+    pub id: String,
 
     ///specify name of song to download
     #[arg(long, short = 'n', requires = "song_id")]
-    pub song_name: String,
+    pub name: String,
 
     ///specify artist of song to download
     #[arg(long, short = 'a')]
-    pub song_artist: Option<String>,
+    pub artist: Option<String>,
 }
 
 #[derive(Debug, Subcommand)]
