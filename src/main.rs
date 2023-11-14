@@ -71,7 +71,7 @@ fn parse_playlist_options(handler: Handler, options: PlaylistOptions) {
     };
 }
 fn parse_download_options(handler: Handler, options: DownloadOptions) {
-    check!(handler.add_song_to_registry(&options.song_id, &options.song_name, options.song_artist))
+    check!(handler.add_song_to_registry(&options.id, &options.name, options.artist))
 }
 
 fn parse_play_options(handler: Handler, options: PlayOptions) {

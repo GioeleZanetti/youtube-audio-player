@@ -76,25 +76,13 @@ impl Handler {
             return Err(anyhow!("Couldn't create playlist, skipping..."));
         }
 
-        let db_songs = match self.database.get_songs() {
-            Some(songs) => songs,
-            None => {
-                return Err(anyhow!("No songs in database"));
-            }
-        };
-
-        let song_names = db_songs
-            .iter()
-            .map(|song| song.name.clone())
-            .collect::<Vec<String>>();
-
-        for (i, song) in songs_to_add.iter().enumerate() {
-            let song = song.trim().to_string();
-            if song_names.contains(&song) {
+        for song in songs_to_add {
+            if let Some(song_in_db) = self.database.get_song_by_name(song.trim()) {
                 self.database.add_songs_to_playlist(NewPlaylistSong {
                     playlist_name,
-                    song_id: &db_songs.get(i).unwrap().id,
+                    song_id: &song_in_db.id,
                 });
+
                 println!("Song {} added to playlist", &song);
             } else {
                 return Err(anyhow!(format!("Song {} doesn't exist", &song)));
