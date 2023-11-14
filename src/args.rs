@@ -146,4 +146,13 @@ pub enum MpdOptions {
     Repeat {},
     ///Goes to previous song in queue
     Previous {},
+    ///Seeks to specified percentage
+    Seek(SeekOptions),
+}
+
+#[derive(Debug, Args)]
+pub struct SeekOptions {
+    ///Percentage to skip to
+    #[arg(long, short)]
+    pub percentage: u8,
 }

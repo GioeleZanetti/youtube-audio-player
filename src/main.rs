@@ -97,5 +97,6 @@ pub fn parse_mpd_options(handler: Handler, options: MpdOptions) {
         MpdOptions::Current {} => check!(handler.current()),
         MpdOptions::Repeat {} => check!(handler.repeat()),
         MpdOptions::Previous {} => check!(handler.previous()),
+        MpdOptions::Seek(options) => check!(handler.seek(options.percentage)),
     }
 }

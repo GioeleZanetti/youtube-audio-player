@@ -270,6 +270,7 @@ impl Handler {
 
     pub fn current(&self) -> anyhow::Result<()> {
         let current_song = self.mpd.current()?;
+        let current_time = self.mpd.current_time()?;
         let current_song_name = match current_song.split(".").next() {
             Some(name) => name,
             None => {
@@ -283,18 +284,31 @@ impl Handler {
             }
         };
 
-        println!("Current song: {}\nArtist: {}", song_info.name, {
-            if let Some(song_artist) = song_info.artist {
-                song_artist
-            } else {
-                "Unknown".to_string()
-            }
-        });
+        println!(
+            "Current song: {}\nArtist: {}\n{}",
+            song_info.name,
+            {
+                if let Some(song_artist) = song_info.artist {
+                    song_artist
+                } else {
+                    "Unknown".to_string()
+                }
+            },
+            current_time
+        );
 
         Ok(())
     }
+
     pub fn repeat(&self) -> anyhow::Result<()> {
         self.mpd.repeat()?;
+        Ok(())
+    }
+
+    pub fn seek(&self, percentage: u8) -> anyhow::Result<()> {
+        self.mpd.seek(percentage)?;
+        self.mpd.pause(Some(true))?;
+        self.mpd.pause(Some(false))?;
         Ok(())
     }
 }
