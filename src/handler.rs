@@ -311,4 +311,54 @@ impl Handler {
         self.mpd.pause(Some(false))?;
         Ok(())
     }
+
+    pub fn status(&self) -> anyhow::Result<()> {
+        let status = self.mpd.status()?;
+        println!(
+            "Pause: {}\tRandom: {}\tRepeat: {}",
+            status.is_paused, status.random, status.repeat
+        );
+        Ok(())
+    }
+
+    pub fn queue(&self) -> anyhow::Result<()> {
+        let queue = self.mpd.queue()?;
+        for song in queue {
+            let db_song = self.database.get_song_by_id(&song);
+            if let Some(song_info) = db_song {
+                println!(
+                    "{} - {}",
+                    song_info.name,
+                    if let Some(artist) = song_info.artist {
+                        artist
+                    } else {
+                        "Unknown".to_string()
+                    }
+                )
+            }
+        }
+        Ok(())
+    }
+
+    pub fn add_to_queue(&self, song_name: &str) -> anyhow::Result<()> {
+        let song_info = self.database.get_song_by_name(song_name);
+        if let Some(song) = song_info {
+            self.mpd.add_to_queue(&song.id)?;
+            println!("Song {} added to queue", song_name);
+        } else {
+            return Err(anyhow!(format!("Song {} doesn't exist", song_name)));
+        }
+        Ok(())
+    }
+
+    pub fn remove_from_queue(&self, song_name: &str) -> anyhow::Result<()> {
+        let song_info = self.database.get_song_by_name(song_name);
+        if let Some(song) = song_info {
+            self.mpd.remove_from_queue(&song.id)?;
+            println!("Song {} removed from queue", song_name);
+        } else {
+            return Err(anyhow!(format!("Song {} doesn't exist", song_name)));
+        }
+        Ok(())
+    }
 }

@@ -1,7 +1,13 @@
-use std::{fmt::Display, time::Duration};
+use std::time::Duration;
 
 use anyhow::anyhow;
-use mpd::{song::QueuePlace, Client, Song, State};
+use mpd::{Client, Song, State};
+
+pub struct Status {
+    pub repeat: bool,
+    pub random: bool,
+    pub is_paused: bool,
+}
 
 pub struct MpdClient {}
 
@@ -130,6 +136,45 @@ impl MpdClient {
             conn.seek(queue_place.id, Duration::from_secs(seconds_to_skip_to))?;
 
             println!("Seeked to {}%", perc);
+        }
+        Ok(())
+    }
+
+    pub fn status(&self) -> anyhow::Result<Status> {
+        let mut conn = Client::connect("127.0.0.1:6600")?;
+        let status = conn.status()?;
+        let out = Status {
+            random: status.random,
+            repeat: status.repeat,
+            is_paused: match status.state {
+                State::Play => false,
+                _ => true,
+            },
+        };
+        Ok(out)
+    }
+
+    pub fn queue(&self) -> anyhow::Result<Vec<String>> {
+        let mut conn = Client::connect("127.0.0.1:6600")?;
+        let songs = conn.queue()?.into_iter().collect::<Vec<Song>>();
+        let mut filenames = Vec::new();
+        for song in songs {
+            let index = song.file.chars().position(|c| c == '.').unwrap();
+            filenames.push(song.file[..index].to_string());
+        }
+        Ok(filenames)
+    }
+
+    pub fn remove_from_queue(&self, song_id: &str) -> anyhow::Result<()> {
+        let mut conn = Client::connect("127.0.0.1:6600")?;
+        let song_in_queue_pos = conn
+            .queue()?
+            .into_iter()
+            .filter(|song| song.file == format!("{}.opus", song_id))
+            .collect::<Vec<Song>>();
+        if song_in_queue_pos.len() > 0 {
+            let position = song_in_queue_pos[0].place.unwrap().id;
+            conn.delete(position)?;
         }
         Ok(())
     }

@@ -98,5 +98,9 @@ pub fn parse_mpd_options(handler: Handler, options: MpdOptions) {
         MpdOptions::Repeat {} => check!(handler.repeat()),
         MpdOptions::Previous {} => check!(handler.previous()),
         MpdOptions::Seek(options) => check!(handler.seek(options.percentage)),
+        MpdOptions::Status {} => check!(handler.status()),
+        MpdOptions::Queue {} => check!(handler.queue()),
+        MpdOptions::QueueAdd(options) => check!(handler.add_to_queue(&options.song_name)),
+        MpdOptions::QueueRemove(options) => check!(handler.remove_from_queue(&options.song_name)),
     }
 }

@@ -20,8 +20,8 @@ impl YoutubeAPI {
     }
 
     pub fn delete_audio(&self, song_id: &str) -> anyhow::Result<()> {
-        let path = &format!("{}/{}.opus", self.music_directory, song_id);
-        fs::remove_file(Path::new(path))?;
+        let path = format!("{}{}.opus", self.music_directory, song_id);
+        fs::remove_file(Path::new(&path))?;
         Ok(())
     }
 }

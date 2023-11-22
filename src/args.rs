@@ -148,6 +148,14 @@ pub enum MpdOptions {
     Previous {},
     ///Seeks to specified percentage
     Seek(SeekOptions),
+    ///Prints mpd status
+    Status {},
+    ///Displays current queue
+    Queue {},
+    ///Add song to current queue
+    QueueAdd(QueueAddOptions),
+    ///Remove song from current queue
+    QueueRemove(QueueRemoveOptions),
 }
 
 #[derive(Debug, Args)]
@@ -155,4 +163,16 @@ pub struct SeekOptions {
     ///Percentage to skip to
     #[arg(long, short)]
     pub percentage: u8,
+}
+
+#[derive(Debug, Args)]
+pub struct QueueAddOptions {
+    #[arg(long, short)]
+    pub song_name: String,
+}
+
+#[derive(Debug, Args)]
+pub struct QueueRemoveOptions {
+    #[arg(long, short)]
+    pub song_name: String,
 }
