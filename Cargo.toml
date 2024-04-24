@@ -14,3 +14,5 @@ mpd = "0.1.0"
 serde = "^1.0"
 anyhow = "1.0.75"
 confy = "0.5.1"
+reqwest = "0.11.22"
+tokio = { version = "1", features = ["full"] }

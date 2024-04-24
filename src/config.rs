@@ -8,6 +8,8 @@ pub struct Config {
 #[derive(Deserialize, Serialize)]
 pub struct General {
     pub music_directory: String,
+    pub miniature_directory: String,
+    pub download_miniature: bool,
 }
 
 #[derive(Deserialize, Serialize)]
@@ -20,6 +22,8 @@ impl Default for Config {
         Self {
             general: General {
                 music_directory: "~/Music/songs/".to_string(),
+                miniature_directory: "~/Music/miniatures".to_string(),
+                download_miniature: false,
             },
             database: Database {
                 database_path: "~/.config/yap/yap.db".to_string(),

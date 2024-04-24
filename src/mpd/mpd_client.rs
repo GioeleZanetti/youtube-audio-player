@@ -178,4 +178,10 @@ impl MpdClient {
         }
         Ok(())
     }
+
+    pub fn shuffle_queue(&self) -> anyhow::Result<()> {
+        let mut conn = Client::connect("127.0.0.1:6600")?;
+        conn.shuffle(..)?;
+        Ok(())
+    }
 }

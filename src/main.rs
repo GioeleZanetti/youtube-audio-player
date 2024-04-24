@@ -12,12 +12,11 @@ use mpd::mpd_client::MpdClient;
 
 use crate::args::*;
 use crate::db::database::Database;
-
 use crate::handler::Handler;
-
 use crate::youtube_api::youtube_api::YoutubeAPI;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let config: Config = match confy::load("yap", "yap.config") {
         Ok(config) => config,
         Err(error) => {
@@ -34,12 +33,16 @@ fn main() {
         }
     };
     database.run_embedded_migrations();
-    let api = YoutubeAPI::new(config.general.music_directory.clone());
+    let api = YoutubeAPI::new(
+        config.general.music_directory.clone(),
+        config.general.miniature_directory.clone(),
+        config.general.download_miniature,
+    );
     let handler = Handler::new(database, api, mpd);
     let args = App::parse();
 
     match args.command {
-        Command::Download(args) => parse_download_options(handler, args),
+        Command::Download(args) => parse_download_options(handler, args).await,
         Command::Playlist(args) => parse_playlist_options(handler, args),
         Command::Play(args) => parse_play_options(handler, args),
         Command::Song(args) => parse_song_options(handler, args),
@@ -70,8 +73,12 @@ fn parse_playlist_options(handler: Handler, options: PlaylistOptions) {
         }
     };
 }
-fn parse_download_options(handler: Handler, options: DownloadOptions) {
-    check!(handler.add_song_to_registry(&options.id, &options.name, options.artist))
+async fn parse_download_options(handler: Handler, options: DownloadOptions) {
+    check!(
+        handler
+            .add_song_to_registry(&options.id, &options.name, options.artist)
+            .await
+    )
 }
 
 fn parse_play_options(handler: Handler, options: PlayOptions) {
@@ -90,6 +97,7 @@ fn parse_song_options(handler: Handler, options: SongOptions) {
 
 pub fn parse_mpd_options(handler: Handler, options: MpdOptions) {
     match options {
+        MpdOptions::Play {} => check!(handler.play()),
         MpdOptions::Pause {} => check!(handler.pause()),
         MpdOptions::Shuffle {} => check!(handler.shuffle()),
         MpdOptions::Clear {} => check!(handler.clear_queue()),
@@ -102,5 +110,6 @@ pub fn parse_mpd_options(handler: Handler, options: MpdOptions) {
         MpdOptions::Queue {} => check!(handler.queue()),
         MpdOptions::QueueAdd(options) => check!(handler.add_to_queue(&options.song_name)),
         MpdOptions::QueueRemove(options) => check!(handler.remove_from_queue(&options.song_name)),
+        MpdOptions::QueueShuffle {} => check!(handler.shuffle_queue()),
     }
 }

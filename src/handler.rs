@@ -21,7 +21,7 @@ impl Handler {
         Self { database, api, mpd }
     }
 
-    pub fn add_song_to_registry(
+    pub async fn add_song_to_registry(
         &self,
         song_id: &str,
         song_name: &str,
@@ -37,7 +37,7 @@ impl Handler {
             return Err(anyhow!("Couldn't add song to database, skipping..."));
         }
 
-        self.api.download_audio(song_id)?;
+        self.api.download_audio(song_id, song_name).await?;
         println!("Song {} downloaded successfully", song_name);
         self.mpd.update_db()?;
         Ok(())
@@ -181,6 +181,11 @@ impl Handler {
         self.mpd.pause(Some(true))?;
         self.mpd.clear_queue()?;
         self.mpd.add_to_queue(&song_id)?;
+        self.mpd.play()?;
+        Ok(())
+    }
+
+    pub fn play(&self) -> anyhow::Result<()> {
         self.mpd.play()?;
         Ok(())
     }
@@ -359,6 +364,12 @@ impl Handler {
         } else {
             return Err(anyhow!(format!("Song {} doesn't exist", song_name)));
         }
+        Ok(())
+    }
+
+    pub fn shuffle_queue(&self) -> anyhow::Result<()> {
+        self.mpd.shuffle_queue()?;
+        println!("Queue shuffled");
         Ok(())
     }
 }

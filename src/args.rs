@@ -29,11 +29,11 @@ pub enum Command {
 #[derive(Debug, Args)]
 pub struct DownloadOptions {
     ///specify url of song to download
-    #[arg(long, short = 'i', requires = "song_name")]
+    #[arg(long, short = 'i', requires = "name")]
     pub id: String,
 
     ///specify name of song to download
-    #[arg(long, short = 'n', requires = "song_id")]
+    #[arg(long, short = 'n', requires = "id")]
     pub name: String,
 
     ///specify artist of song to download
@@ -132,6 +132,8 @@ pub struct SongDeleteOptions {
 
 #[derive(Debug, Subcommand)]
 pub enum MpdOptions {
+    ///Plays song in queue
+    Play {},
     ///Toggles pause function
     Pause {},
     ///Toggles shuffle function
@@ -156,6 +158,8 @@ pub enum MpdOptions {
     QueueAdd(QueueAddOptions),
     ///Remove song from current queue
     QueueRemove(QueueRemoveOptions),
+    ///Shuffles current queue
+    QueueShuffle {},
 }
 
 #[derive(Debug, Args)]
